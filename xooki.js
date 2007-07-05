@@ -792,128 +792,43 @@ if (typeof xooki.io == "undefined") {
     xooki.io = {};
 }
 
-if (batchMode) {
-	importPackage(java.io);
-	
-	xooki.io.loadFile = function( url, warnOnError ) {
-	  var str = '';
-	  try {
-      var r = new BufferedReader(new FileReader(url));
-	  line = r.readLine();
-	  while (line != null) {
-		str += line + '\n';
-		line = r.readLine();
-	  }
-	  r.close();
-	  } catch (e) {
-	  	if (warnOnError) {
-	  		throw e;
-	  	} else {
-	  		xooki.debug("error occured while loading "+url);
-	  	}
-	  }
-	  return str;
-    };
-	
-	xooki.io.saveFile = function (fileUrl, content) {
-		p = new File(fileUrl).getParentFile();
-		if (p != null) {
-			p.mkdirs();
-		}
-		pw = new PrintWriter(new FileWriter(fileUrl));
-		pw.write(content);
-		pw.close();
-		return true;
-	}
 
-    xooki.url.loadURL = function( url, warnOnError ) {
-		return xooki.io.loadFile(url, warnOnError );
-	};
-	
-	xooki.html.addHeader = function (head) {
-		xooki.pageContent = xooki.pageContent.replace(/<\/head>/, head+'\n</head>');
-	};
-	
-	xooki.html.setBody = function(body) {
-		xooki.pageContent = xooki.pageContent.replace(/<body>(.|[^,])*<\/body>/gm, '<body>'+body+'</body>');
+xooki.action = {}
+xooki.action.toggleDebug = function() {
+    if (xooki.c.debug) {
+    	if (document.getElementById('xooki-debug').style.display == 'none') {
+    		xooki.html.show('xooki-debug');
+    	} else {
+    		xooki.html.hide('xooki-debug');
+    	}
 	}
-	
-	xooki.url.include = function(script_filename) {
-		xooki.html.addHeader('<script language="javascript" type="text/javascript" src="'+xooki.c.relativeRoot+'xooki/'+script_filename+'"></script>');
-	};
-	
-	xooki.input.source = function() {
-		if (typeof this._source == 'undefined') {
-			xooki.debug('searching source');
-			var beg = xooki.pageContent.indexOf('<textarea id="xooki-source">');
-			beg += '<textarea id="xooki-source">'.length;
-			var end = xooki.pageContent.lastIndexOf('</textarea>');
-			this._source = xooki.pageContent.substring(beg, end);
-			xooki.debug('source found');
-		}
-		return this._source;
-	}
-	
-	xooki.render.page = function() {
-	    // realize all components available
-		xooki.debug('realizing components');
-	    for (var k in xooki.component) {
-	        xooki.c[k] = xooki.component[k]();
-	    }
-	    
-		xooki.debug('processing body');
-		xooki.c.body = xooki.input.processed();
+}
+xooki.action.evaluate = function () {
+    var exp = prompt("Please enter javascript expression to evaluate");
+    xooki.debugShowDetail(eval(exp));
+}
 
-		xooki.debug('updating body');
-		var body = xooki.string.processTemplate(xooki.template.body, xooki.c);
-	    xooki.html.setBody(body);
-	};
-
-	xooki.display = function(message, background) {
-		print(message);
-	};
-	
-	xooki.debug = function (message) {
-		if (xooki.c.debug) {
-			print(message+'\n');
-		}
-	};
-	var i=0;
-	if (arguments.length > i && arguments[0] == '-debug') {
-		xooki.c.debug = true;
-		i++;
-	} else {
-		xooki.c.debug = false;
+// TODO, review use registration
+function keyCtrl(evt) {
+	var code = xooki.c.browser.NS ? evt.which : event.keyCode;
+	var ctrl = xooki.c.browser.NS ? evt.ctrlKey : event.ctrlKey;
+  	var key = String.fromCharCode(code);
+	if (xooki.c.debug && ctrl && "d" == key) {
+		xooki.action.toggleDebug();
+		return false;
 	}
-	
-	var file = 'index.html';
-	if (arguments.length > i) {
-		file = arguments[i];
-		i++;
+	if (xooki.c.allowEdit && ctrl && "s" == key) {
+		xooki.action.saveChanges();
+		return false;
 	}
-	var generateToDir = "gen";
-	if (arguments.length > i) {
-		generateToDir = arguments[i];
-		i++;
-	}
-	
-	print('processing '+file+'...\n');
-	xooki.pageContent = xooki.io.loadFile(file);
-	
-	var m = /var\s+xookiConfig\s+=\s+{.*};/.exec(xooki.pageContent);
-	if (typeof m != 'undefined' && m != null) {
-		eval(m[0]);
+	if (xooki.c.allowEdit && ctrl && "e" == key) {
+		xooki.action.toggleEdit();
+		return false;
 	}
 }
 
-if (batchMode) {
-	xooki.pageURL = new File(file).toURL().toExternalForm();
-} else {
-	xooki.pageURL = window.location.toString();
-}
-
-// init xooki engine
-(function() {
+// xooki engine init function
+xooki.init = function() {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////// config init
     ////////////////////////////////////////////////////////////////////////////
@@ -1138,48 +1053,137 @@ if (batchMode) {
             xooki.debug(k+": "+xooki.c[k]);
         }
     }
-})();
+};
 
-xooki.action = {}
-xooki.action.toggleDebug = function() {
-    if (xooki.c.debug) {
-    	if (document.getElementById('xooki-debug').style.display == 'none') {
-    		xooki.html.show('xooki-debug');
-    	} else {
-    		xooki.html.hide('xooki-debug');
-    	}
-	}
-}
-xooki.action.evaluate = function () {
-    var exp = prompt("Please enter javascript expression to evaluate");
-    xooki.debugShowDetail(eval(exp));
-}
-
-// TODO, review use registration
-function keyCtrl(evt) {
-	var code = xooki.c.browser.NS ? evt.which : event.keyCode;
-	var ctrl = xooki.c.browser.NS ? evt.ctrlKey : event.ctrlKey;
-  	var key = String.fromCharCode(code);
-	if (xooki.c.debug && ctrl && "d" == key) {
-		xooki.action.toggleDebug();
-		return false;
-	}
-	if (xooki.c.allowEdit && ctrl && "s" == key) {
-		xooki.action.saveChanges();
-		return false;
-	}
-	if (xooki.c.allowEdit && ctrl && "e" == key) {
-		xooki.action.toggleEdit();
-		return false;
-	}
-}
-
-if (batchMode) {	
-	xooki.pageContent = xooki.pageContent.replace(/<script type="text\/javascript" src="[^"]*xooki.js"><\/script>/g, '');
+if (batchMode) {
+	importPackage(java.io);
 	
-	xooki.render.page();
+	xooki.io.loadFile = function( url, warnOnError ) {
+	  var str = '';
+	  try {
+      var r = new BufferedReader(new FileReader(url));
+	  line = r.readLine();
+	  while (line != null) {
+		str += line + '\n';
+		line = r.readLine();
+	  }
+	  r.close();
+	  } catch (e) {
+	  	if (warnOnError) {
+	  		throw e;
+	  	} else {
+	  		xooki.debug("error occured while loading "+url);
+	  	}
+	  }
+	  return str;
+    };
+	
+	xooki.io.saveFile = function (fileUrl, content) {
+		p = new File(fileUrl).getParentFile();
+		if (p != null) {
+			p.mkdirs();
+		}
+		pw = new PrintWriter(new FileWriter(fileUrl));
+		pw.write(content);
+		pw.close();
+		return true;
+	}
 
-	print('generating to '+generateToDir+'/'+file);
-	xooki.io.saveFile(generateToDir+'/'+file, xooki.pageContent);
+    xooki.url.loadURL = function( url, warnOnError ) {
+		return xooki.io.loadFile(url, warnOnError );
+	};
+	
+	xooki.html.addHeader = function (head) {
+		xooki.pageContent = xooki.pageContent.replace(/<\/head>/, head+'\n</head>');
+	};
+	
+	xooki.html.setBody = function(body) {
+		xooki.pageContent = xooki.pageContent.replace(/<body>(.|[^,])*<\/body>/gm, '<body>'+body+'</body>');
+	}
+	
+	xooki.url.include = function(script_filename) {
+		xooki.html.addHeader('<script language="javascript" type="text/javascript" src="'+xooki.c.relativeRoot+'xooki/'+script_filename+'"></script>');
+	};
+	
+	xooki.input.source = function() {
+		if (typeof this._source == 'undefined') {
+			xooki.debug('searching source');
+			var beg = xooki.pageContent.indexOf('<textarea id="xooki-source">');
+			beg += '<textarea id="xooki-source">'.length;
+			var end = xooki.pageContent.lastIndexOf('</textarea>');
+			this._source = xooki.pageContent.substring(beg, end);
+			xooki.debug('source found');
+		}
+		return this._source;
+	}
+	
+	xooki.render.page = function() {
+	    // realize all components available
+		xooki.debug('realizing components');
+	    for (var k in xooki.component) {
+	        xooki.c[k] = xooki.component[k]();
+	    }
+	    
+		xooki.debug('processing body');
+		xooki.c.body = xooki.input.processed();
+
+		xooki.debug('updating body');
+		var body = xooki.string.processTemplate(xooki.template.body, xooki.c);
+	    xooki.html.setBody(body);
+	};
+
+	xooki.display = function(message, background) {
+		print(message);
+	};
+	
+	xooki.debug = function (message) {
+		if (xooki.c.debug) {
+			print(message+'\n');
+		}
+	};
+	var i=0;
+	if (arguments.length > i && arguments[0] == '-debug') {
+		xooki.c.debug = true;
+		i++;
+	} else {
+		xooki.c.debug = false;
+	}
+	
+	var file = 'index.html';
+	if (arguments.length > i) {
+		file = arguments[i];
+		i++;
+	}
+	var generateToDir = "gen";
+	if (arguments.length > i) {
+		generateToDir = arguments[i];
+		i++;
+	}
+
+	xooki.pageURL = new File(file).toURL().toExternalForm();
+	
+	print('processing '+new File(file).getAbsolutePath()+'...\n');
+	xooki.pageContent = xooki.io.loadFile(file);
+    
+    if (xooki.pageContent.match(/<textarea\s+id="xooki\-source">/) == null) {
+        print(file + ' is not a valid xooki source. ignored.');
+    } else {	
+    	var m = /var\s+xookiConfig\s+=\s+{.*};/.exec(xooki.pageContent);
+    	if (typeof m != 'undefined' && m != null) {
+    		eval(m[0]);
+    	}
+
+        xooki.init();
+        
+    	xooki.pageContent = xooki.pageContent.replace(/<script type="text\/javascript" src="[^"]*xooki.js"><\/script>/g, '');
+    	
+    	xooki.render.page();
+
+    	print('generating to '+generateToDir+'/'+file);
+    	xooki.io.saveFile(generateToDir+'/'+file, xooki.pageContent);
+    }
+} else {
+	xooki.pageURL = window.location.toString();
+    xooki.init();
 }
 

@@ -15,6 +15,7 @@
     	      srcFiles = ds.getIncludedFiles();
     	
     	      // iterate over that array
+              print('processing '+srcFiles.length+' source files...');
     	      for (i=0; i<srcFiles.length; i++) {
     	
     	        // get the values via Java API
@@ -29,7 +30,7 @@
                     upToDate = project.createTask("uptodate");
                     upToDate.setProperty(p);
                     upToDate.setSrcfile(file);
-                    upToDate.setTargetFile(new File(attributes.get("destdir")+"/"+filepath));
+                    upToDate.setTargetFile(new File(attributes.get("destdir")+"/"+filepath+"/"+filename));
                     upToDate.perform();
                     if (project.getProperty(p) != null) {
                         self.log(srcFiles[i]+" is up to date", 3);
