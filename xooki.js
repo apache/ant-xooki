@@ -795,8 +795,9 @@ if (typeof xooki.io == "undefined") {
 if (batchMode) {
 	importPackage(java.io);
 	
-	xooki.io.loadFile = function( url ) {
+	xooki.io.loadFile = function( url, warnOnError ) {
 	  var str = '';
+	  try {
       var r = new BufferedReader(new FileReader(url));
 	  line = r.readLine();
 	  while (line != null) {
@@ -804,6 +805,13 @@ if (batchMode) {
 		line = r.readLine();
 	  }
 	  r.close();
+	  } catch (e) {
+	  	if (warnOnError) {
+	  		throw e;
+	  	} else {
+	  		xooki.debug("error occured while loading "+url);
+	  	}
+	  }
 	  return str;
     };
 	
@@ -818,8 +826,8 @@ if (batchMode) {
 		return true;
 	}
 
-    xooki.url.loadURL = function( url ) {
-		return xooki.io.loadFile(url);
+    xooki.url.loadURL = function( url, warnOnError ) {
+		return xooki.io.loadFile(url, warnOnError );
 	};
 	
 	xooki.html.addHeader = function (head) {

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<antlib>
+    <scriptdef name="generate" language="javascript">
+        <element name="fileset" type="fileset"/>
+        <attribute name="destDir"/>
+        <attribute name="checkUpToDate"/>
+        <![CDATA[
+             importClass(java.io.File);
+            
+    	      fs = elements.get("fileset").get(0);
+              srcDir = elements.get("fileset").get(0).getDir(project);
+    	
+    	      // Get the files (array) of that fileset
+    	      ds = fs.getDirectoryScanner(project);
+    	      srcFiles = ds.getIncludedFiles();
+    	
+    	      // iterate over that array
+    	      for (i=0; i<srcFiles.length; i++) {
+    	
+    	        // get the values via Java API
+    	        var file = new File(fs.getDir(project), srcFiles[i]);
+    	        
+    			var basedir = file.getParent();
+    			var filename = file.getName();
+    			var filepath = srcFiles[i].substring(0, srcFiles[i].lastIndexOf(project.getProperty("file.separator"))+1);
+                
+                if (attributes.get("checkuptodate")) {
+                    p = "xooki."+srcFiles[i]+".uptodate";
+                    upToDate = project.createTask("uptodate");
+                    upToDate.setProperty(p);
+                    upToDate.setSrcfile(file);
+                    upToDate.setTargetFile(new File(attributes.get("destdir")+"/"+filepath));
+                    upToDate.perform();
+                    if (project.getProperty(p) != null) {
+                        self.log(srcFiles[i]+" is up to date", 3);
+                        continue;
+                    }
+                }
+            
+    	        exec = project.createTask("exec");
+    	        exec.setDir(new File(basedir));
+    	        exec.setExecutable("jrunscript");
+    	        exec.createArg().setValue(srcDir+"/xooki/xooki.js");
+    	        exec.createArg().setValue(filename);
+    	        exec.createArg().setValue(attributes.get("destdir")+"/"+filepath);
+    	        exec.perform();
+    		  }
+        ]]>
+    </scriptdef>
+</antlib>
