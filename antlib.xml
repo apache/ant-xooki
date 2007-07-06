@@ -26,7 +26,7 @@
     			var filepath = srcFiles[i].substring(0, srcFiles[i].lastIndexOf(project.getProperty("file.separator"))+1);
                 
                 if (attributes.get("checkuptodate")) {
-                    p = "xooki."+srcFiles[i]+".uptodate";
+                    p = "xooki."+file.getAbsolutePath().replace(' ','_')+".uptodate";
                     upToDate = project.createTask("uptodate");
                     upToDate.setProperty(p);
                     upToDate.setSrcfile(file);

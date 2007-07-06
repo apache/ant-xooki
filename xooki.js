@@ -702,7 +702,7 @@ xooki.input = {
                 
                 var title;
                 var url;
-                var titleSuffix = "";
+                var invalid = false;
                 
                 if (typeof xooki.toc.pages[xooki.toc.importRoot + id] != "undefined") {
                	    title = xooki.toc.pages[xooki.toc.importRoot + id].title;
@@ -711,14 +711,23 @@ xooki.input = {
                	    title = xooki.toc.pages[id].title;
                     url = pu(id);
                	} else {
+                    invalid = true;
                		title = code;
-               		url = u(code);
-                    titleSuffix = '?';
+               		url = u(id);
                	}
                 if (index>0) {
                 	title = code.substring(index+1);
                 }
-                return '<a href="'+url+'">'+title+titleSuffix+'</a>';
+                if (invalid) {
+                    if (batchMode) {
+                        // do not output invalid links as links in batch mode
+                        return title;
+                    } else {
+                        return title+'<a href="'+url+'">?</a>';
+                    }
+                } else {
+                    return '<a href="'+url+'">'+title+'</a>';
+                }
             });
         },
         
