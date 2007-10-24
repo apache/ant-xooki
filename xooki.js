@@ -781,6 +781,22 @@ xooki.input = {
                     return '<br class="xooki-br"/>'; // the class is not really necessary but allow to distinguish generated br from input one
                 }
             });
+        },
+        
+        includes: function (input) {
+	        //[<url>] replaced by the content of the url
+	        result = "";
+	        lastStart = 0;
+	        nextPos = input.indexOf("[<" , lastStart);
+	        while( nextPos > 0 ) {
+		        result = result + input.slice(lastStart,nextPos);
+		        lastStart = nextPos;
+		        nextPos = input.indexOf(">]" , lastStart);
+		        result = result + xooki.url.loadURL(u(input.slice(lastStart+2,nextPos)));
+		        lastStart = nextPos + 2;
+		        nextPos = input.indexOf("[<" , lastStart);
+	        }
+            return result + input.slice(lastStart);
         }
     },
     
@@ -884,7 +900,7 @@ xooki.init = function() {
     xooki.c.initProperty("xookiInputFormat", ["xooki"]);
     xooki.c.initProperty("allowEdit", !batchMode && xooki.pageURL.substr(0,5) == "file:");
     
-    xooki.input.format.define("xooki", ["code", "shortcuts", "url", "xookiLinks", "jira", "lineBreak"]);
+    xooki.input.format.define("xooki", ["code", "shortcuts", "url", "xookiLinks", "jira", "lineBreak" , "includes"]);
     
     xooki.c.path = (typeof xooki.c.path != "undefined")?xooki.c.path:{};
     xooki.c.path.initProperty = initConfigProperty;
