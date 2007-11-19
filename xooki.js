@@ -64,6 +64,15 @@ function u(path) {
 	return xooki.c.root + path;
   }
 }
+function lu(path) {
+  // convert a path relative to the local root to a full URL
+  // l stands for local, u stands for Url
+  if (batchMode) {
+	return xooki.c.localRelativeRoot+path;
+  } else {
+	return xooki.c.localRoot + path;
+  }
+}
 function cu(urlCfgProp) {
   // get a path from a configuration path and convert it to an URL
   // cu stands for Configured Url
@@ -792,7 +801,7 @@ xooki.input = {
 		        result = result + input.slice(lastStart,nextPos);
 		        lastStart = nextPos;
 		        nextPos = input.indexOf(">]" , lastStart);
-		        result = result + xooki.url.loadURL(u(input.slice(lastStart+2,nextPos)));
+		        result = result + xooki.url.loadURL(lu(input.slice(lastStart+2,nextPos)));
 		        lastStart = nextPos + 2;
 		        nextPos = input.indexOf("[<" , lastStart);
 	        }
@@ -882,6 +891,10 @@ xooki.init = function() {
     	return xooki.string.mul('../', xooki.c.level);
     };
     xooki.c.setImportLevel = function(level) {
+        // compute roots with old level value, for paths relative to the local (non imported) root
+        this.localRoot = this.computeRoot();
+        this.localRelativeRoot = this.computeRelativeRoot();
+        // change level and update roots
         this.level+=level;
         this.root = this.computeRoot();
         this.relativeRoot = this.computeRelativeRoot();
