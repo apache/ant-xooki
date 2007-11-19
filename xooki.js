@@ -687,8 +687,9 @@ xooki.input = {
             // needs to be configured in xooki config like this
             //      xooki.c.shortcuts.<any shortcut>.url = base url of the shortcut. 
             //      ex: xooki.c.shortcuts.svn.url = https://xooki.svn.sourceforge.net/svnroot/xooki/trunk/
-            return input.replace(new RegExp("\\[\\[([^:]+):([^\\]]+)\\]\\]", "g"), function (str, prefix, code, offset, s) {
+            return input.replace(new RegExp("\\[\\[([^:\n]+):([^\\]\n]+)\\]\\]", "g"), function (str, prefix, code, offset, s) {
             	if (typeof xooki.c.shortcuts == "undefined" || typeof xooki.c.shortcuts[prefix] == "undefined") {
+                    xooki.debug('unknown shortcut '+prefix);
             		return str;
             	}
                 var index = code.indexOf(' ');
