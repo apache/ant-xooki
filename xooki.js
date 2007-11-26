@@ -903,6 +903,8 @@ xooki.init = function() {
     xooki.c.initProperty("level", 0);
     xooki.c.initProperty("root", xooki.c.computeRoot);
     xooki.c.initProperty("relativeRoot", xooki.c.computeRelativeRoot);
+    xooki.c.initProperty("localRoot", xooki.c.root);
+    xooki.c.initProperty("localRelativeRoot", xooki.c.relativeRoot);
     globalConfig = xooki.url.loadURL(u("config.json"), false);
     if (globalConfig != null) 
         xooki.util.mix(globalConfig, xooki.c, false);
