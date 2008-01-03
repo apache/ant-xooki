@@ -565,11 +565,8 @@ xooki.render.printerFriendlyAsyncLoader = function(source, arr) {
     	xooki.url.asyncLoadURL(pu(nextPage.id), xooki.render.printerFriendlyAsyncLoader, [root, nextPage]);
    	}
 };
-xooki.render.printerFriendly = function() {
-    for (var k in xooki.component) {
-        xooki.c[k] = xooki.component[k]();
-    }
-    
+
+xooki.render.printerFriendlyAsync = function() {
 	xooki.c.body = xooki.c.messages
 	+ "<div id='xooki-printerFriendly'></div>" // div where printer friendly content will be put
     + xooki.c.debugPanel;
@@ -579,6 +576,43 @@ xooki.render.printerFriendly = function() {
     // start async loading of content
     xooki.url.asyncLoadURL(pu(xooki.page.id), xooki.render.printerFriendlyAsyncLoader, [xooki.page, xooki.page]);
 };
+
+xooki.render.printerFriendlySync = function() {
+	xooki.c.body = xooki.c.messages
+    + (function (page, level) {
+        var source = xooki.url.loadURL(pu(page.id));
+        if (source == null) {
+            return "";
+        }
+        var beginIndex = source.indexOf('<textarea id="xooki-source">');
+        beginIndex += '<textarea id="xooki-source">'.length;
+        var endIndex = source.lastIndexOf('</textarea>');
+        source = source.substring(beginIndex, endIndex);
+        
+        var printerFriendly = "<div class='toc-title toc-title-"+level+"'>"+page.title+"</div>";
+        printerFriendly += xooki.input.format.main(source);
+        for (var i=0; i <page.children.length; i++) {
+            printerFriendly += "<hr/>";
+            printerFriendly += arguments.callee(page.children[i], level+1);
+        }
+        return printerFriendly;
+    })(xooki.page, 1);
+    
+    xooki.html.setBody(xooki.string.processTemplate(xooki.template.body, xooki.c));
+};
+
+xooki.render.printerFriendly = function() {
+    for (var k in xooki.component) {
+        xooki.c[k] = xooki.component[k]();
+    }
+    
+	if (batchMode) {
+		xooki.render.printerFriendlySync();
+	} else {
+		xooki.render.printerFriendlyAsync();
+	}
+};
+
 
 xooki.render.page = function() {
     // realize all components available
@@ -937,6 +971,7 @@ xooki.init = function() {
 	    };
     
 	    // action
+	    if (! xooki.c.action) xooki.c.action = 'render';
 	    // TODO: better handle action extraction
 		xooki.c.action = window.location.search == '?action=print'?'print':xooki.c.action;
 	}
@@ -1195,9 +1230,14 @@ if (batchMode) {
 		file = arguments[i];
 		i++;
 	}
-	var generateToDir = "gen";
+	var generateTo = "gen";
 	if (arguments.length > i) {
-		generateToDir = arguments[i];
+		generateTo = arguments[i];
+		i++;
+	}
+	xooki.c.action = 'render';
+	if (arguments.length > i) {
+		xooki.c.action = arguments[i];
 		i++;
 	}
 
@@ -1218,10 +1258,11 @@ if (batchMode) {
         
     	xooki.pageContent = xooki.pageContent.replace(/<script type="text\/javascript" src="[^"]*xooki.js"><\/script>/g, '');
     	
-    	xooki.render.page();
+    	xooki.render.main();
 
-    	print('generating to '+generateToDir+'/'+file);
-    	xooki.io.saveFile(generateToDir+'/'+file, xooki.pageContent);
+		var dest = generateTo.endsWith(".html") ? generateTo : generateTo+'/'+file;
+    	print('generating to '+dest);
+    	xooki.io.saveFile(dest, xooki.pageContent);
     }
 } else {
 	xooki.pageURL = window.location.toString();
