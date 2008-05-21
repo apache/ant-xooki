@@ -42,6 +42,7 @@
     	        exec = project.createTask("exec");
     	        exec.setDir(new File(basedir));
     	        exec.setExecutable("jrunscript");
+    	        exec.setTaskName("generate");
     	        exec.createArg().setValue(srcDir+"/xooki/xooki.js");
     	        exec.createArg().setValue(filename);
     	        exec.createArg().setValue(attributes.get("destdir")+"/"+filepath);
@@ -84,6 +85,7 @@
 		        exec = project.createTask("exec");
 		        exec.setDir(new File(basedir));
 		        exec.setExecutable("jrunscript");
+   	        exec.setTaskName("print");
 		        exec.createArg().setValue(project.getProperty("basedir")+"/xooki/xooki.js");
 		        exec.createArg().setValue(filename);
 		        exec.createArg().setValue(destFile);
