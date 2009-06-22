@@ -940,8 +940,10 @@ xooki.init = function() {
     xooki.c.initProperty("localRoot", xooki.c.root);
     xooki.c.initProperty("localRelativeRoot", xooki.c.relativeRoot);
     globalConfig = xooki.url.loadURL(u("config.json"), false);
-    if (globalConfig != null) 
+    if (globalConfig != null) {
+        globalConfig = eval('('+globalConfig+')');
         xooki.util.mix(globalConfig, xooki.c, false);
+    }
     xooki.url.evalURL(u("config.js"), false);
     xooki.url.evalURL(u("config.extra.js"), false);
 
