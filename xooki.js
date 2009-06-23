@@ -940,7 +940,7 @@ xooki.init = function() {
     xooki.c.initProperty("localRoot", xooki.c.root);
     xooki.c.initProperty("localRelativeRoot", xooki.c.relativeRoot);
     globalConfig = xooki.url.loadURL(u("config.json"), false);
-    if (globalConfig != null) {
+    if (globalConfig != null && globalConfig.length != 0) {
         globalConfig = eval('('+globalConfig+')');
         xooki.util.mix(globalConfig, xooki.c, false);
     }
@@ -1102,7 +1102,7 @@ xooki.init = function() {
 	xooki.template = {};
     xooki.template.source = xooki.url.loadURL(xooki.c.action == "print"?cu("printTemplate"):cu("template"));
 	if(xooki.template.source != null) {
-		xooki.template.head = xooki.template.source.match(/<head>([^§]*)<\/head>/im)[1];
+		xooki.template.head = xooki.template.source.match(/<head>([^ï¿½]*)<\/head>/im)[1];
 		var root = batchMode?xooki.c.relativeRoot:xooki.c.root;
 		
         var head = xooki.string.processTemplate(xooki.template.head, xooki.config);
@@ -1110,7 +1110,7 @@ xooki.init = function() {
 		head = head.replace(/src="([^\\$:"]+)"/g, 'src="'+root+'$1"');
 		xooki.html.addHeader(head);
 
-		var body = xooki.template.source.match(/<body>([^§]*)<\/body>/im)[1];
+		var body = xooki.template.source.match(/<body>([^ï¿½]*)<\/body>/im)[1];
 		body = body.replace(/href="([^\\$:"]+)"/g, 'href="'+root+'$1"');
 		xooki.template.body = body.replace(/src="([^\\$:"]+)"/g, 'src="'+root+'$1"');		
 	}
