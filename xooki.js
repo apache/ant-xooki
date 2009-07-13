@@ -448,7 +448,7 @@ xooki.html = {
     	if (page.isAbstract) {
     		return page.title;
     	} else {
-    		return '<a href="'+pu(page.id)+'" '+(page.id == xooki.page.id?'class="current"':'')+'>'+page.title+'</a>';
+    		return '<a href="'+(page.url != null ? page.url : pu(page.id))+'" '+(page.id == xooki.page.id?'class="current"':'')+'>'+page.title+'</a>';
     	}
     },
 	
