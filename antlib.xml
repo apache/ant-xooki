@@ -6,10 +6,12 @@
         <attribute name="checkUpToDate"/>
         <attribute name="printerFriendly"/>
         <![CDATA[
-            importClass(java.io.File);
+        importClass(java.io.File);
 
-            fs = elements.get("fileset").get(0);
-            srcDir = elements.get("fileset").get(0).getDir(project);
+        filesets = elements.get("fileset")
+        for (j=0; j<filesets.size(); j++) {
+            fs = filesets.get(j);
+            srcDir = fs.getDir(project);
 
             // Get the files (array) of that fileset
             ds = fs.getDirectoryScanner(project);
@@ -51,6 +53,7 @@
                 }
                 exec.perform();
             }
+        }
         ]]>
     </scriptdef>
     <scriptdef name="print" language="javascript">
