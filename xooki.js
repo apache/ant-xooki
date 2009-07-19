@@ -554,7 +554,7 @@ xooki.render.printerFriendlyAsyncLoader = function(source, arr) {
     source = source.substring(beginIndex, endIndex);
     
     var printerFriendly = "<h"+level+">"+page.title+"</h"+level+">";
-    printerFriendly += xooki.input.format.main(source) + "<hr/>";
+    printerFriendly += xooki.input.format.main(source, level) + "<hr/>";
     // inject block in page
     var pf = document.getElementById('xooki-printerFriendly');
     pf.innerHTML += printerFriendly;    
@@ -590,7 +590,7 @@ xooki.render.printerFriendlySync = function() {
         source = source.substring(beginIndex, endIndex);
         
         var printerFriendly = "<div class='toc-title toc-title-"+level+"'>"+page.title+"</div>";
-        printerFriendly += xooki.input.format.main(source);
+        printerFriendly += xooki.input.format.main(source, level);
         for (var i=0; i <page.children.length; i++) {
             printerFriendly += "<hr/>";
             printerFriendly += arguments.callee(page.children[i], level+1);
@@ -674,7 +674,7 @@ xooki.input = {
             // filters: an array of input filter names
             xooki.c[inputFormat+"InputFormat"] = filters;
         },
-        main: function(source) {
+        main: function(source, level) {
             // formats an input source
             if (xooki.c.inputFormat && typeof this.getInputFilters(xooki.c.inputFormat) != "undefined") {
                 format = xooki.c.inputFormat;
@@ -688,7 +688,7 @@ xooki.input = {
                     f = xooki.input.filters[filters[i]];
                     if (typeof f == "function") {
                     	try {
-                        	source = f(source); // process filter
+                        	source = f(source, level); // process filter
                         } catch (e) {
     	                    xooki.error(e, t("error occured while processing filter ${0}", filters[i]));
                         }
@@ -841,7 +841,25 @@ xooki.input = {
 		        nextPos = input.indexOf("[<" , lastStart);
 	        }
             return result + input.slice(lastStart);
-        }
+        },
+
+        printFormatImgFix: function (input, level) {
+			if (level == undefined || level < 3) {
+				return input;
+			}
+			return input.replace(new RegExp('<img +src *= *\\"([^\\"]*)\\"', "g"), function (str, img, offset, s) {
+				l = level;
+				while (l > 2) {
+					if (img.indexOf("../") >= 0) {
+						img = img.substring(3);
+					} else {
+						break;
+					}
+					l--;
+				}
+				return '<img src="'+img+'"';
+			});
+		}
     },
     
     
@@ -952,7 +970,7 @@ xooki.init = function() {
     xooki.c.initProperty("xookiInputFormat", ["xooki"]);
     xooki.c.initProperty("allowEdit", !batchMode && xooki.pageURL.substr(0,5) == "file:");
     
-    xooki.input.format.define("xooki", ["code", "shortcuts", "url", "xookiLinks", "jira", "lineBreak" , "includes"]);
+    xooki.input.format.define("xooki", ["code", "shortcuts", "url", "xookiLinks", "jira", "lineBreak" , "includes", "printFormatImgFix"]);
     
     xooki.c.path = (typeof xooki.c.path != "undefined")?xooki.c.path:{};
     xooki.c.path.initProperty = initConfigProperty;
