@@ -690,7 +690,7 @@ xooki.input = {
                     	try {
                         	source = f(source, level); // process filter
                         } catch (e) {
-    	                    xooki.error(e, t("error occured while processing filter ${0}", filters[i]));
+    	                    xooki.error(e, t("error occurred while processing filter ${0}", filters[i]));
                         }
                     } else {
                         xooki.error(t("unknown filter ${0} used in input format ${1}", filters[i], format));
@@ -1168,7 +1168,7 @@ if (batchMode) {
 	  	if (warnOnError) {
 	  		throw e;
 	  	} else {
-	  		xooki.debug("error occured while loading "+url);
+	  		xooki.debug("error occurred while loading "+url);
 	  	}
 	  }
 	  return str;
