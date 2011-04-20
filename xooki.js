@@ -466,11 +466,11 @@ xooki.html = {
 xooki.component = {
     childrenList: function () {
     	if (xooki.page.children.length > 0) {
-    		childrenList = '<ul class="'+css('childrenList')+'">';
+    		childrenList = '<ul class="'+css('childrenList')+'">\n';
     		for (var i in xooki.page.children) {
-    			childrenList+='<li>'+xooki.html.pageLink(xooki.page.children[i])+'</li>';
+    			childrenList+='<li>'+xooki.html.pageLink(xooki.page.children[i])+'</li>\n';
     		}
-    		childrenList += "</ul>";
+    		childrenList += "</ul>\n";
     		return childrenList;
     	} else {
     	   return "";
@@ -478,7 +478,7 @@ xooki.component = {
     },
     
     menu: function () {
-    	var menu = '<ul id="'+css("treemenu")+'" class="treeview">';
+    	var menu = '<ul id="'+css("treemenu")+'" class="treeview">\n';
     	menu += (function (page) {
         	var menu = '';
         	for (var i in page.children) {
@@ -499,12 +499,12 @@ xooki.component = {
             		} else {
                         menu += '<li id="xooki-'+page.children[i].id+'">'+xooki.html.pageLink(page.children[i]);
                     }
-            		menu += '</li>';
+            		menu += '</li>\n';
                 }
         	}
         	return menu;
         })(xooki.toc);
-    	menu += '</ul>';
+    	menu += '</ul>\n';
     	return menu;
     },
     
