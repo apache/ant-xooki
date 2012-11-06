@@ -704,7 +704,7 @@ xooki.input = {
     filters: {
         url: function (input) {
             // handle urls
-            return input.replace(new RegExp("(?:file|http|https|mailto|ftp):[^\\s'\"]+(?:/|\\b)", "g"), function (str, offset, s) {
+            return input.replace(new RegExp("(?:file|http|https|mailto|ftp):[^\\s'\"<]+(?:/|\\b)", "g"), function (str, offset, s) {
                 var before = s.substring(0,offset);
                 if (before.match(/(href|src)="$/)) {
                     return str;
