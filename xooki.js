@@ -1152,6 +1152,11 @@ xooki.init = function() {
 };
 
 if (batchMode) {
+        try {
+            load("nashorn:mozilla_compat.js");
+        } catch (e) {
+            // ignore the exception - perhaps we are running on Rhino!
+        }
 	importPackage(java.io);
 	
 	xooki.io.loadFile = function( url, warnOnError ) {
