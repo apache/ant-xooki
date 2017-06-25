@@ -29,7 +29,6 @@
 	} catch (e) {
 	    // ignore the exception - perhaps we are running on Rhino!
         }
-        importClass(java.io.File);
 
         var xookidir = attributes.get("xookidir");
         if (xookidir == null) {
@@ -50,7 +49,7 @@
             for (i = 0; i < srcFiles.length; i++) {
 
                 // get the values via Java API
-                var file = new File(fs.getDir(project), srcFiles[i]);
+                var file = new java.io.File(fs.getDir(project), srcFiles[i]);
 
                 var basedir = file.getParent();
                 var filename = file.getName();
@@ -61,7 +60,7 @@
                     upToDate = project.createTask("uptodate");
                     upToDate.setProperty(p);
                     upToDate.setSrcfile(file);
-                    upToDate.setTargetFile(new File(attributes.get("destdir") + "/" + filepath + "/" + filename));
+                    upToDate.setTargetFile(new java.io.File(attributes.get("destdir") + "/" + filepath + "/" + filename));
                     upToDate.perform();
                     if (project.getProperty(p) != null) {
                         self.log(srcFiles[i]+" is up to date", 3);
@@ -70,7 +69,7 @@
                 }
 
                 exec = project.createTask("exec");
-                exec.setDir(new File(basedir));
+                exec.setDir(new java.io.File(basedir));
                 exec.setExecutable("jrunscript");
                 exec.setTaskName("generate");
                 exec.createArg().setValue(xookidir + "/xooki.js");
@@ -90,10 +89,9 @@
         <attribute name="xookidir"/>
         <attribute name="checkUpToDate"/>
         <![CDATA[
-        importClass(java.io.File);
 
-        var file = new File(attributes.get("src"));
-        var destFile = new File(attributes.get("dest"));
+        var file = new java.io.File(attributes.get("src"));
+        var destFile = new java.io.File(attributes.get("dest"));
 
         var xookidir = attributes.get("xookidir");
         if (xookidir == null) {
@@ -120,7 +118,7 @@
 
         if (perform) {
             exec = project.createTask("exec");
-            exec.setDir(new File(basedir));
+            exec.setDir(new java.io.File(basedir));
             exec.setExecutable("jrunscript");
             exec.setTaskName("print");
             exec.createArg().setValue(xookidir + "/xooki.js");
